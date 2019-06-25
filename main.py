@@ -2,7 +2,6 @@ import argparse
 import time
 from datetime import datetime
 from statistics import mode
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,11 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 # TODO: remove hardcoded ID so it can be uploaded to github
 def script():
-    """[summary]
-    
-    Arguments:
-        path {string} -- Path to the credentials file
-    """
     driver = webdriver.Chrome()
 
     ############################ LOGIN ############################
@@ -77,7 +71,7 @@ def script():
     driver.quit()
 
 
-def check_periodically(period=1500, n=20):
+def check_periodically(p=1500, n=20):
     # Runs indefinitely if n = 0
     i = 0
     while True:
@@ -89,13 +83,20 @@ def check_periodically(period=1500, n=20):
             print('Error in run number:', i + 1)
             print(e)
         # Timeout warning 1680000 ms, so I want it to refresh or smth every 1500000 ms ~roughly 25 minutes
-        time.sleep(period)
+        time.sleep(p)
         if n == 0:
             pass
         elif i < n:
             i += 1
         else:
             break
+
+
+def check_at_time(p, n, t):
+    delta = datetime.strptime(t, '%m/%d/%y,%H:%M:%S') - datetime.now()
+    print("Waiting", delta.seconds, "seconds.")
+    time.sleep(delta.seconds)
+    check_periodically(p, n)
 
 
 parser = argparse.ArgumentParser()
@@ -114,20 +115,21 @@ parser.add_argument("-n",
                     "--number",
                     help="Number of attempts before script ends.",
                     type=int)
-parser.add_argument("-t",
-                    "--time",
-                    help="Time at which script starts running (24hr).",
-                    type=int)
+parser.add_argument(
+    "-t",
+    "--time",
+    help="Format: m/d/y,H:M:S. Time at which script starts running (24hr).",
+    type=str)
 args = parser.parse_args()
-mode = parser.mode
-period = parser.period
-number = parser.number
-time = parser.time
+m = args.mode
+p = args.period
+n = args.number
+t = args.time
 
-if mode == 1:
-    check_periodically(period, number)
-elif mode == 2:
-    # TODO:
-    pass
+print("Mode", m)
+if m == 1:
+    check_periodically(p, n)
+elif m == 2:
+    check_at_time(p, n, t)
 else:
     print("Enter a valid mode")
