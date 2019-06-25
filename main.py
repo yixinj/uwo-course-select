@@ -1,10 +1,15 @@
+import argparse
 import time
+from datetime import datetime
+from statistics import mode
+
 from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-# TODO: add parameters to this so that it can be uploaded to github
+
+# TODO: remove hardcoded ID so it can be uploaded to github
 def script():
     """[summary]
     
@@ -72,13 +77,57 @@ def script():
     driver.quit()
 
 
-for i in range(20):
-    # Just in case wifi disconnects, put in try loop
-    try:
-        script()
-        print('Finished run number:', i + 1)
-    except Exception as e:
-        print('Error in run number:', i + 1)
-        print(e)
-    # Timeout warning 1680000 ms, so I want it to refresh or smth every 1500000 ms ~roughly 25 minutes
-    time.sleep(1500)
+def check_periodically(period=1500, n=20):
+    # Runs indefinitely if n = 0
+    i = 0
+    while True:
+        # Just in case wifi disconnects, put in try loop
+        try:
+            script()
+            print('Finished run number:', i + 1)
+        except Exception as e:
+            print('Error in run number:', i + 1)
+            print(e)
+        # Timeout warning 1680000 ms, so I want it to refresh or smth every 1500000 ms ~roughly 25 minutes
+        time.sleep(period)
+        if n == 0:
+            pass
+        elif i < n:
+            i += 1
+        else:
+            break
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-m",
+    "--mode",
+    help=
+    "1: Check for spots periodically. 2: Check for spots at a certain time (local), then check periodically.",
+    type=int,
+    choices=[1, 2])
+parser.add_argument("-p",
+                    "--period",
+                    help="Period (seconds) between attempts.",
+                    type=int)
+parser.add_argument("-n",
+                    "--number",
+                    help="Number of attempts before script ends.",
+                    type=int)
+parser.add_argument("-t",
+                    "--time",
+                    help="Time at which script starts running (24hr).",
+                    type=int)
+args = parser.parse_args()
+mode = parser.mode
+period = parser.period
+number = parser.number
+time = parser.time
+
+if mode == 1:
+    check_periodically(period, number)
+elif mode == 2:
+    # TODO:
+    pass
+else:
+    print("Enter a valid mode")
