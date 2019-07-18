@@ -118,7 +118,7 @@ parser.add_argument("-n",
 parser.add_argument(
     "-t",
     "--time",
-    help="Format: m/d/y,H:M:S. Time at which script starts running (24hr).",
+    help="Time at which script starts running (24hr). Format: m/d/y,H:M:S",
     type=str)
 args = parser.parse_args()
 m = args.mode
